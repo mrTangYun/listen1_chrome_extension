@@ -38,6 +38,11 @@
         player.playById(id);
       });
     },
+    playAndDownloadById(id) {
+      getPlayerAsync(mode, (player) => {
+        player.playById(id, true);
+      });
+    },
     loadById(idx) {
       getPlayerAsync(mode, (player) => {
         player.loadById(idx);

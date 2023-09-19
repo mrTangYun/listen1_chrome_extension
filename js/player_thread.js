@@ -180,9 +180,9 @@
       this.sendPlaylistEvent();
     }
 
-    playById(id) {
+    playById(id, needDownload = false) {
       const idx = this.playlist.findIndex((audio) => audio.id === id);
-      this.play(idx);
+      this.play(idx, needDownload);
     }
 
     loadById(id) {
@@ -195,18 +195,18 @@
      * @param  {Number} index Index of the song in the playlist
      * (leave empty to play the first or current).
      */
-    play(idx) {
+    play(idx, needDownload = false) {
       this.load(idx);
 
       const data = this.playlist[this.index];
       if (!data.howl || !this._media_uri_list[data.id]) {
-        this.retrieveMediaUrl(this.index, true);
+        this.retrieveMediaUrl(this.index, true, needDownload);
       } else {
-        this.finishLoad(this.index, true);
+        this.finishLoad(this.index, true, needDownload);
       }
     }
 
-    retrieveMediaUrl(index, playNow) {
+    retrieveMediaUrl(index, playNow, needDownload = false) {
       const msg = {
         type: 'BG_PLAYER:RETRIEVE_URL',
         data: {
@@ -229,7 +229,7 @@
 
           this.setMediaURI(msg.data.url, msg.data.id);
           this.setAudioDisabled(false, msg.data.index);
-          this.finishLoad(msg.data.index, playNow);
+          this.finishLoad(msg.data.index, playNow, needDownload);
           playerSendMessage(this.mode, msg);
         },
         () => {
@@ -263,7 +263,7 @@
       this.sendLoadEvent();
     }
 
-    finishLoad(index, playNow) {
+    finishLoad(index, playNow, needDownload = false) {
       const data = this.playlist[index];
 
       // If we already loaded this track, use the current one.
@@ -365,6 +365,32 @@
         });
         this.currentHowl.play();
       }
+
+      console.log(self._media_uri_list[data.url || data.id], needDownload);
+      if (needDownload) {
+        this.download(self._media_uri_list[data.url || data.id], data.title);
+      }
+    }
+
+    download(href, title) {
+      fetch(href)
+        .then((res) => res.blob())
+        .then((blob) => {
+          var filename = `${title}`;
+          if (window.navigator.msSaveOrOpenBlob) {
+            navigator.msSaveBlob(blob, filename); //兼容ie10
+          } else {
+            var a = document.createElement('a');
+            document.body.appendChild(a); //兼容火狐，将a标签添加到body当中
+            var url = window.URL.createObjectURL(blob); // 获取 blob 本地文件连接 (blob 为纯二进制对象，不能够直接保存到磁盘上)
+            a.href = url;
+            a.download = filename;
+            a.target = '_blank'; // a标签增加target属性
+            a.click();
+            a.remove(); //移除a标签
+            window.URL.revokeObjectURL(url);
+          }
+        });
     }
 
     /**

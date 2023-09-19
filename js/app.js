@@ -190,6 +190,21 @@ const main = () => {
       },
     }),
   ]);
+  
+  app.directive('addAndPlayAndDownload', [
+    () => ({
+      restrict: 'EA',
+      scope: {
+        song: '=addAndPlayAndDownload',
+      },
+      link(scope, element, attrs) {
+        element.bind('click', (event) => {
+          l1Player.addTrack(scope.song);
+          l1Player.playAndDownloadById(scope.song.id);
+        });
+      },
+    }),
+  ]);
 
   app.directive('addWithoutPlay', [
     () => ({

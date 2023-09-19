@@ -360,6 +360,10 @@ angular.module('listenone').controller('NavigationController', [
     $scope.playById = (id) => {
       l1Player.playById(id);
     };
+    
+    $scope.addAndPlayAndDownload = (song) => {
+      l1Player.playAndDownloadById(song.id);
+    };
 
     $scope.addAndPlay = (song) => {
       l1Player.addTrack(song);
