@@ -35,6 +35,7 @@
       src="js/vendor/forge_listen1_fork.min.js"
     ></script>
     <script type="text/javascript" src="js/vendor/axios.min.js"></script>
+    <script type="text/javascript" src="js/vendor/jsmediatags.min.js"></script>
     <script type="text/javascript" src="js/vendor/notyf.min.js"></script>
     <script type="text/javascript" src="js/vendor/howler.core.min.js"></script>
     <script type="text/javascript" src="js/vendor/hotkeys.min.js"></script>
@@ -73,7 +74,9 @@
     ></script>
     <script>
       if (window.module) module = window.module;
+      var jsmediatags = window.jsmediatags;
     </script>
+    <script type="module" src="js/script.js"></script>
   </head>
 
   <body>
@@ -845,6 +848,15 @@
                                     </div>
 
                                     <div class="tools">
+                                      <a
+                                        add-and-play-and-download="song"
+                                        style="padding-right: 1em"
+                                        title="播放并下载"
+                                        ng-show="options"
+                                        ><img
+                                          height="13"
+                                          src="https://cdn-icons-png.flaticon.com/512/60/60656.png"
+                                      /></a>
                                       <a
                                         title="{{_ADD_TO_QUEUE}}"
                                         class="detail-add-button"
@@ -1748,8 +1760,9 @@
                                   >
                                 </div>
                                 <div class="tools">
-                                  <a add-and-play-and-download="song"
-                                    style="padding-right: 1em;"
+                                  <a
+                                    add-and-play-and-download="song"
+                                    style="padding-right: 1em"
                                     title="播放并下载"
                                     ng-show="options"
                                     ><img
@@ -1952,6 +1965,15 @@
                       </div>
                       <div class="detail" ng-if="playlist.length > 0">
                         <div class="ctrl">
+                          <a
+                            ng-click="downloadCurrentPlaying(currentPlaying)"
+                            title="下载"
+                          >
+                            <img
+                              height="13"
+                              src="https://cdn-icons-png.flaticon.com/512/60/60656.png"
+                            />
+                          </a>
                           <a
                             ng-click="showDialog(0, currentPlaying)"
                             title="{{_ADD_TO_PLAYLIST}}"
@@ -3305,6 +3327,15 @@
 
                                     <div class="tools">
                                       <a
+                                        add-and-play-and-download="song"
+                                        style="padding-right: 1em"
+                                        title="播放并下载"
+                                        ng-show="options"
+                                        ><img
+                                          height="13"
+                                          src="https://cdn-icons-png.flaticon.com/512/60/60656.png"
+                                      /></a>
+                                      <a
                                         title="{{_ADD_TO_QUEUE}}"
                                         class="detail-add-button"
                                         add-without-play="song"
@@ -4588,6 +4619,15 @@
                                   >
                                 </div>
                                 <div class="tools">
+                                  <a
+                                    add-and-play-and-download="song"
+                                    style="padding-right: 1em"
+                                    title="播放并下载"
+                                    ng-show="options"
+                                    ><img
+                                      height="13"
+                                      src="https://cdn-icons-png.flaticon.com/512/60/60656.png"
+                                  /></a>
                                   <a
                                     title="{{_ADD_TO_QUEUE}}"
                                     class="detail-add-button"

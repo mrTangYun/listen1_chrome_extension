@@ -8,6 +8,8 @@
   "background": {
     "scripts": [
       "js/vendor/axios.min.js",
+      "js/vendor/jsmediatags.min.js",
+      "js/vendor/browser-id3-writer.6.0.0.mjs",
       "js/github.js",
       "js/background.js",
       "js/vendor/howler.core.min.js",

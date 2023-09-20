@@ -43,6 +43,12 @@
         player.playById(id, true);
       });
     },
+
+    downloadById(id) {
+      getPlayerAsync(mode, (player) => {
+        player.downloadById(id, true);
+      });
+    },
     loadById(idx) {
       getPlayerAsync(mode, (player) => {
         player.loadById(idx);

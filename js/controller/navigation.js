@@ -211,6 +211,10 @@ angular.module('listenone').controller('NavigationController', [
       });
     };
 
+    $scope.downloadCurrentPlaying = (data) => {
+      l1Player.downloadById(data.id);
+    };
+
     $scope.showDialog = (dialog_type, data) => {
       $scope.is_dialog_hidden = 0;
       $scope.dialog_data = data;
@@ -360,7 +364,7 @@ angular.module('listenone').controller('NavigationController', [
     $scope.playById = (id) => {
       l1Player.playById(id);
     };
-    
+
     $scope.addAndPlayAndDownload = (song) => {
       l1Player.playAndDownloadById(song.id);
     };

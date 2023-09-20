@@ -206,6 +206,19 @@
       }
     }
 
+    downloadById(idx) {
+      const data = this.playlist[this.index];
+      if (this._media_uri_list[data.url || data.id]) {
+        this.download(
+          this._media_uri_list[data.url || data.id],
+          data.title,
+          data
+        );
+      } else {
+        this.play(idx, true);
+      }
+    }
+
     retrieveMediaUrl(index, playNow, needDownload = false) {
       const msg = {
         type: 'BG_PLAYER:RETRIEVE_URL',
@@ -366,23 +379,87 @@
         this.currentHowl.play();
       }
 
-      console.log(self._media_uri_list[data.url || data.id], needDownload);
       if (needDownload) {
-        this.download(self._media_uri_list[data.url || data.id], data.title);
+        // if (true) {
+        this.download(
+          self._media_uri_list[data.url || data.id],
+          data.title,
+          data
+        );
       }
     }
 
-    download(href, title) {
+    blobToArrayBuffer(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.readAsArrayBuffer(blob);
+      });
+    }
+
+    getDuration(arrayBuffer) {
+      return new Promise((resolve, reject) => {
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        audioContext.decodeAudioData(arrayBuffer, function (buffer) {
+          let duration = buffer.duration;
+          resolve(duration);
+        });
+      });
+    }
+
+    readTags(blob) {
+      return new Promise((resolve, reject) => {
+        jsmediatags.read(blob, {
+          onSuccess: (tag) => {
+            resolve(tag);
+          },
+          onError: function (error) {
+            reject(error);
+          },
+        });
+      });
+    }
+
+    download(href, title, allData) {
       fetch(href)
         .then((res) => res.blob())
-        .then((blob) => {
+        .then(async (blob) => {
+          const tag = await this.readTags(blob);
+          let newBlob = blob;
+          if (tag.type === 'ID3') {
+            const arrayBuffer = await this.blobToArrayBuffer(blob);
+            const writer = new ID3Writer(arrayBuffer);
+            writer
+              .setFrame('TIT2', allData.title) // 标题
+              .setFrame('TPE1', [allData.artist]) // 参与创作的艺术家
+              .setFrame('TALB', allData.album); // 唱片集
+            // .setFrame('TYER', 2004) // 年
+            // .setFrame('TRCK', '6/8')
+            // .setFrame('TCON', ['Soundtrack']) // 流派
+            // .setFrame('TBPM', 128) // 比特率
+            // .setFrame('WPAY', 'https://google.com')
+            // .setFrame('TKEY', 'Fbm');
+            writer.addTag();
+            newBlob = writer.getBlob();
+            const newTag = await this.readTags(newBlob);
+            const duration = await this.getDuration(arrayBuffer);
+            if (duration > 58 && duration < 61) {
+              console.log('小于60秒，且大于58秒，可能被截断了， 不保存');
+              return;
+            }
+          }
+
           var filename = `${title}`;
           if (window.navigator.msSaveOrOpenBlob) {
-            navigator.msSaveBlob(blob, filename); //兼容ie10
+            navigator.msSaveBlob(newBlob, filename); //兼容ie10
           } else {
             var a = document.createElement('a');
             document.body.appendChild(a); //兼容火狐，将a标签添加到body当中
-            var url = window.URL.createObjectURL(blob); // 获取 blob 本地文件连接 (blob 为纯二进制对象，不能够直接保存到磁盘上)
+            var url = window.URL.createObjectURL(newBlob); // 获取 blob 本地文件连接 (blob 为纯二进制对象，不能够直接保存到磁盘上)
             a.href = url;
             a.download = filename;
             a.target = '_blank'; // a标签增加target属性
